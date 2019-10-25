@@ -61,19 +61,21 @@ function transformIssues(json) {
     var owaspStandard = [];
     
     json.issues.forEach(function(element) {
+      var owaspfound = false;
       element.fields.labels.forEach(function(lab) {
         if(lab.includes("owasp")) {
           
           var newObj = createOwaspObject(element.key, element.fields.summary, element.fields.subtasks);
           newObj.owaspcat = lab;
           owaspStandard.push(newObj);
-        }
-        else {
-          
-          var newObj = createOwaspObject(element.key, element.fields.summary, element.fields.subtasks);
-          owaspStandard.push(newObj);
+          owaspfound = true;
         }
       });
+      
+      if(!owaspfound) {
+        var newObj = createOwaspObject(element.key, element.fields.summary, element.fields.subtasks);
+        owaspStandard.push(newObj);
+      }
     });
     
     owaspStandard.sort((a, b) => (a.owaspcat > b.owaspcat) ? 1 : -1);
