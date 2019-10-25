@@ -79,7 +79,7 @@ function transformIssues(json) {
     owaspStandard.sort((a, b) => (a.owaspcat > b.owaspcat) ? 1 : -1);
     
     var completeData = "var mydata =  "+JSON.stringify(owaspStandard)+";";
-    fs.writeFile("./data.js", completeData, function(err) {
+    fs.writeFile("./data.json", completeData, function(err) {
 
         if(err) {
             return console.log(err);
