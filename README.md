@@ -1,7 +1,5 @@
 # Security Standards vs SonarSource Rules
 
-This folder contains a code base of vulnerabilities modelized for PHP.
-
 ## Installation
 
 ```
@@ -13,4 +11,4 @@ npm install
 ```
 node securitystandards.js
 ```
-open dashboard.html with your favorite internet browser.
+And next open dashboard.html with your favorite internet browser.
