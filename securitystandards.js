@@ -3,219 +3,99 @@ const fs = require('fs');
 
 function createOwaspObject(key, title, subtasks, issuelinks) {
   
-  var hasJavasubtask = "No";
-  var hasJavaOpenTicket = false;
-  var hasJavaClosedTicket = false;
-  var hasCsharpsubtask = "No";
-  var hasCsharpOpenTicket = false;
-  var hasCsharpClosedTicket = false;
-  var hasJssubtask = "No";
-  var hasJsOpenTicket = false;
-  var hasJsClosedTicket = false;
-  var hasPythonsubtask = "No";
-  var hasPythonOpenTicket = false;
-  var hasPythonClosedTicket = false;
-  var hasPhpsubtask = "No";
-  var hasPhpOpenTicket = false;
-  var hasPhpClosedTicket = false;
-  var hasKotlinsubtask = "No";
-  var hasKotlinOpenTicket = false;
-  var hasKotlinClosedTicket = false;
-  var hasCfamilysubtask = "No";
-  var hasCfamilyOpenTicket = false;
-  var hasCfamilyClosedTicket = false;
-  var hasPlsqlsubtask = "No";
-  var hasPlsqlOpenTicket = false;
-  var hasPlsqlClosedTicket = false;
-  
   if(typeof issuelinks !== 'undefined' && issuelinks !== null) {
+    
+    // 0: name of ticket 1: name of subtask
+    // correct order to avoid conflict "javascript" "java"
+    var subtaskslang = [["js", "javascript"], ["java", "java"], ["c#", "c#"], ["py", "python"], ["php", "php"], ["slang", "kotlin"], ["cpp", "c-family"], ["plsql", "pl/sql"]];
+    
+    var statesubtasks = [];
+    
+    subtaskslang.forEach(function(lang) {
+          statesubtasks[lang[0]] = [];
+          statesubtasks[lang[0]]["hassubtask"] = "No";
+          statesubtasks[lang[0]]["hasopenticket"] = false;
+          statesubtasks[lang[0]]["hasclosedticket"] = false;
+    });
+    
     issuelinks.forEach(function(element) {
       if(element.type.inward === "is implemented by")
       {
-        if(element.inwardIssue.key.toLowerCase().includes("java")) {
-          if(element.inwardIssue.fields.status.name.toLowerCase().includes("open")) {
-            hasJavaOpenTicket = true;
+        
+        subtaskslang.forEach(function(lang) {
+          if(element.inwardIssue.key.toLowerCase().includes(lang[0])) {
+            if(element.inwardIssue.fields.status.name.toLowerCase().includes("open")) {
+              statesubtasks[lang[0]]["hasopenticket"] = true;
+            }
+            else if(element.inwardIssue.fields.status.name.toLowerCase().includes("closed")) {
+              statesubtasks[lang[0]]["hasclosedticket"] = true;
+            }
           }
-          else if(element.inwardIssue.fields.status.name.toLowerCase().includes("closed")) {
-            hasJavaClosedTicket = true;
-          }
-        }
-        if(element.inwardIssue.key.toLowerCase().includes("c#")) {
-          if(element.inwardIssue.fields.status.name.toLowerCase().includes("open")) {
-            hasCsharpOpenTicket = true;
-          }
-          else if(element.inwardIssue.fields.status.name.toLowerCase().includes("closed")) {
-            hasCsharpClosedTicket = true;
-          }
-        }
-        if(element.inwardIssue.key.toLowerCase().includes("js")) {
-          if(element.inwardIssue.fields.status.name.toLowerCase().includes("open")) {
-            hasJsOpenTicket = true;
-          }
-          else if(element.inwardIssue.fields.status.name.toLowerCase().includes("closed")) {
-            hasJsClosedTicket = true;
-          }
-        }
-        if(element.inwardIssue.key.toLowerCase().includes("py")) {
-          if(element.inwardIssue.fields.status.name.toLowerCase().includes("open")) {
-            hasPythonOpenTicket = true;
-          }
-          else if(element.inwardIssue.fields.status.name.toLowerCase().includes("closed")) {
-            hasPythonClosedTicket = true;
-          }
-        }
-        if(element.inwardIssue.key.toLowerCase().includes("php")) {
-          if(element.inwardIssue.fields.status.name.toLowerCase().includes("open")) {
-            hasPhpOpenTicket = true;
-          }
-          else if(element.inwardIssue.fields.status.name.toLowerCase().includes("closed")) {
-            hasPhpClosedTicket = true;
-          }
-        }
-        if(element.inwardIssue.key.toLowerCase().includes("slang")) {
-          if(element.inwardIssue.fields.status.name.toLowerCase().includes("open")) {
-            hasKotlinOpenTicket = true;
-          }
-          else if(element.inwardIssue.fields.status.name.toLowerCase().includes("closed")) {
-            hasKotlinClosedTicket = true;
-          }
-        }
-        if(element.inwardIssue.key.toLowerCase().includes("cpp")) {
-          if(element.inwardIssue.fields.status.name.toLowerCase().includes("open")) {
-            hasCfamilyOpenTicket = true;
-          }
-          else if(element.inwardIssue.fields.status.name.toLowerCase().includes("closed")) {
-            hasCfamilyClosedTicket = true;
-          }
-        }
-        if(element.inwardIssue.key.toLowerCase().includes("plsql")) {
-          if(element.inwardIssue.fields.status.name.toLowerCase().includes("open")) {
-            hasPlsqlOpenTicket = true;
-          }
-          else if(element.inwardIssue.fields.status.name.toLowerCase().includes("closed")) {
-            hasPlsqlClosedTicket = true;
-          }
-        }
+        });
       }
     });
   }
-  
+    
   subtasks.forEach(function(element) {
-    if(element.fields.summary.toLowerCase().includes("javascript")) {
-      if(hasJsClosedTicket && !hasJsOpenTicket) { 
-        hasJssubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=green>"+element.key+"</font></a>";
-      }
-      else if(!hasJsClosedTicket && hasJsOpenTicket) { 
-        hasJssubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=orange>"+element.key+"</font></a>";
-      }
-      else
-      {
-        hasJssubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'>"+element.key+"</a>";
-      }
-    }
-    else if(element.fields.summary.toLowerCase() == "java") {
-      if(hasJavaClosedTicket && !hasJavaOpenTicket) { 
-        hasJavasubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=green>"+element.key+"</font></a>";
-      }
-      else if(!hasJavaClosedTicket && hasJavaOpenTicket) { 
-        hasJavasubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=orange>"+element.key+"</font></a>";
-      }
-      else
-      {
-        hasJavasubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'>"+element.key+"</a>";
-      }
-    }
-    else if(element.fields.summary.toLowerCase().includes("c#")) {
-      if(hasCsharpClosedTicket && !hasCsharpOpenTicket) { 
-        hasCsharpsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=green>"+element.key+"</font></a>";
-      }
-      else if(!hasCsharpClosedTicket && hasCsharpOpenTicket) { 
-        hasCsharpsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=orange>"+element.key+"</font></a>";
-      }
-      else
-      {
-        hasCsharpsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'>"+element.key+"</a>";
-      }
-    }
-    else if(element.fields.summary.toLowerCase().includes("python")) {
-      if(hasPythonClosedTicket && !hasPythonOpenTicket) { 
-        hasPythonsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=green>"+element.key+"</font></a>";
-      }
-      else if(!hasPythonClosedTicket && hasPythonOpenTicket) { 
-        hasPythonsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=orange>"+element.key+"</font></a>";
-      }
-      else
-      {
-        hasPythonsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'>"+element.key+"</a>";
-      }
-    }
-    else if(element.fields.summary.toLowerCase().includes("php")) {
-      if(hasPhpClosedTicket && !hasPhpOpenTicket) { 
-        hasPhpsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=green>"+element.key+"</font></a>";
-      }
-      else if(!hasPhpClosedTicket && hasPhpOpenTicket) { 
-        hasPhpsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=orange>"+element.key+"</font></a>";
-      }
-      else
-      {
-        hasPhpsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'>"+element.key+"</a>";
-      }
-    }
-    else if(element.fields.summary.toLowerCase().includes("kotlin")) {
+    
+    subtaskslang.forEach(function(lang) {
       
-      if(hasKotlinClosedTicket && !hasKotlinOpenTicket) { 
-        hasKotlinsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=green>"+element.key+"</font></a>";
+      if(element.fields.summary.toLowerCase().includes(lang[1])) {
+        var numberofcode = "<span class='badge badge-danger'>0</span>";
+        if(typeof savedDescriptions[""+element.key+""] !== 'undefined' && savedDescriptions[""+element.key+""] !== null) {
+          numberofcode = ((savedDescriptions[""+element.key+""].match(/{code/g)||[]).length) / 2;
+            
+          if(numberofcode >= 0 && numberofcode < 3) {
+              numberofcode = "<span class='badge badge-danger'>"+numberofcode+"</span>";
+          }
+          else if(numberofcode >= 3 && numberofcode < 6) {
+              numberofcode = "<span class='badge badge-warning'>"+numberofcode+"</span>";
+          }
+          else if(numberofcode >= 6) {
+              numberofcode = "<span class='badge badge-success'>"+numberofcode+"</span>";
+          }
+        }
+        
+        if(statesubtasks[lang[0]]["hasclosedticket"] && !statesubtasks[lang[0]]["hasopenticket"]) { 
+          statesubtasks[lang[0]]["hassubtask"] = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=green>"+element.key+"</font></a> "+numberofcode+"";
+        }
+        else if(!statesubtasks[lang[0]]["hasclosedticket"] && statesubtasks[lang[0]]["hasopenticket"]) { 
+          statesubtasks[lang[0]]["hassubtask"] = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=orange>"+element.key+"</font></a> "+numberofcode+"";
+        }
+        else
+        {
+          statesubtasks[lang[0]]["hassubtask"] = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'>"+element.key+"</a> "+numberofcode+"";
+        }
+        
+        return;
       }
-      else if(!hasKotlinClosedTicket && hasKotlinOpenTicket) { 
-        hasKotlinsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=orange>"+element.key+"</font></a>";
-      }
-      else
-      {
-        hasKotlinsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'>"+element.key+"</a>";
-      }
-    }
-    else if(element.fields.summary.toLowerCase().includes("c-family")) {
-      
-      if(hasCfamilyClosedTicket && !hasCfamilyOpenTicket) { 
-        hasCfamilysubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=green>"+element.key+"</font></a>";
-      }
-      else if(!hasCfamilyClosedTicket && hasCfamilyOpenTicket) { 
-        hasCfamilysubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=orange>"+element.key+"</font></a>";
-      }
-      else
-      {
-        hasCfamilysubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'>"+element.key+"</a>";
-      }
-    }
-    else if(element.fields.summary.toLowerCase().includes("pl/sql")) {
-      
-      if(hasPlsqlClosedTicket && !hasPlsqlOpenTicket) { 
-        hasPlsqlsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=green>"+element.key+"</font></a>";
-      }
-      else if(!hasPlsqlClosedTicket && hasPlsqlOpenTicket) { 
-        hasPlsqlsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'><font color=orange>"+element.key+"</font></a>";
-      }
-      else
-      {
-        hasPlsqlsubtask = "<a href='https://jira.sonarsource.com/browse/"+element.key+"'>"+element.key+"</a>";
-      }
-    }
+    });
   });
   
   var object = {
     "owaspcat": "not defined",
     "ruletitle": "<a href='https://jira.sonarsource.com/browse/"+key+"'>"+title+"</a>",
-    "java": hasJavasubtask,
-    "csharp": hasCsharpsubtask,
-    "js": hasJssubtask,
-    "python": hasPythonsubtask,
-    "php": hasPhpsubtask,
-    "kotlin": hasKotlinsubtask,
-    "cfamily": hasCfamilysubtask,
-    "plsql": hasPlsqlsubtask
+    "java": statesubtasks["java"]["hassubtask"],
+    "csharp": statesubtasks["c#"]["hassubtask"],
+    "js": statesubtasks["js"]["hassubtask"],
+    "python": statesubtasks["py"]["hassubtask"],
+    "php": statesubtasks["php"]["hassubtask"],
+    "kotlin": statesubtasks["slang"]["hassubtask"],
+    "cfamily": statesubtasks["cpp"]["hassubtask"],
+    "plsql": statesubtasks["plsql"]["hassubtask"]
   }
   
   return object;
+}
+
+var savedDescriptions = [];
+
+function transformSubtasks(json) {
+  json.issues.forEach(function(element) {
+    if(typeof element.key !== 'undefined' && element.key !== null) {
+      savedDescriptions[""+element.key+""] = element.fields.description;
+    }
+  });
 }
 
 function transformIssues(json) {
@@ -261,9 +141,31 @@ function transformIssues(json) {
   }
 }
 
-
-fetch('https://jira.sonarsource.com/rest/api/2/search?jql=issuetype%20in%20(%22Security%20Hotspot%20Detection%22%2C%20%22Vulnerability%20Detection%22)&maxResults=5000')
+// first page
+fetch('https://jira.sonarsource.com/rest/api/2/search?jql=project%20=%20RSPEC%20AND%20issuetype%20in%20subTaskIssueTypes()%20AND%20resolution%20=%20Unresolved%20ORDER%20BY%20updated%20DESC&maxResults=5000')
     .then(res => res.json())
-    .then(json => transformIssues(json));
-    
+    .then(json => {
+      
+      transformSubtasks(json);
+      // second page
+      fetch('https://jira.sonarsource.com/rest/api/2/search?jql=project%20=%20RSPEC%20AND%20issuetype%20in%20subTaskIssueTypes()%20AND%20resolution%20=%20Unresolved%20ORDER%20BY%20updated%20DESC&maxResults=5000&startAt=1000')
+          .then(res => res.json())
+          .then(json => {
+            
+            transformSubtasks(json);
+          
+            // third page
+            fetch('https://jira.sonarsource.com/rest/api/2/search?jql=project%20=%20RSPEC%20AND%20issuetype%20in%20subTaskIssueTypes()%20AND%20resolution%20=%20Unresolved%20ORDER%20BY%20updated%20DESC&maxResults=5000&startAt=2000')
+                .then(res => res.json())
+                .then(json => {
+                  
+                  transformSubtasks(json);  
+                
+                  // in last
+                  fetch('https://jira.sonarsource.com/rest/api/2/search?jql=issuetype%20in%20(%22Security%20Hotspot%20Detection%22%2C%20%22Vulnerability%20Detection%22)&maxResults=5000')
+                      .then(res => res.json())
+                      .then(json => transformIssues(json));
+                });
+          });
+    });
     
