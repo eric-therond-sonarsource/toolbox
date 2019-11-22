@@ -1,4 +1,7 @@
-node_modules/
-package-lock.json
-data.json
+securitystandards/node_modules/
+sonarcloud/node_modules/
+securitystandards/package-lock.json
+securitystandards/data.json
+sonarcloud/package-lock.json
+sonarcloud/data.json
 
