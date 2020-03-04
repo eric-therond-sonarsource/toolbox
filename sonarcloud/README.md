@@ -13,11 +13,11 @@ node stats.js days rule-type issue-type resolution statuses
 
 where:
 <sup>
-- **days**: the analysis to considerer (see below)
+- *days*: the analysis to considerer (see below)
 - *rule*: VULNERABILITY,CODE_SMELL,SECURITY_HOTSPOT,BUG or a text file (see below)
 - *issue*: VULNERABILITY,CODE_SMELL,SECURITY_HOTSPOT,BUG
 - *resolution*:  ALL,NOTRESOLVED,WONTFIX,FALSE-POSITIVE,FIXED,REMOVED
-- *statuses* (optional): ALL,OPEN,CONFIRMED,REOPENED,RESOLVED,CLOSED,TO_REVIEW,IN_REVIEW,REVIEWED
+- *statuses* (optional): ALL,OPEN,CONFIRMED,REOPENED,RESOLVED,CLOSED
 </sup>
 
 #### Add your JWT-SESSION cookie to your environment
