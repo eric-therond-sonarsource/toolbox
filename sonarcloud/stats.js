@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 const fs = require('fs');
 
+const organization = "agigleux";
 
 var fetchConfig = { 
   method: 'GET',
@@ -19,7 +20,7 @@ function statsIssues(rule, project, id_issue) {
   var object = {
     "rule_name": "<a href='https://jira.sonarsource.com/browse/RSPEC-"+rule.rspecnum+"' target=_blank>"+rule.name+"</a>",
     "project": "<a href='https://sonarcloud.io/dashboard?id="+project+"' target=_blank>"+project+"</a>",
-    "issue_link": "<a href='https://sonarcloud.io/project/issues?id="+project+"&open="+id_issue+"' target=_blank>issue link</a>",
+    "issue_link": "<a href='https://sonarcloud.io/project/issues?id="+project+"&issues="+id_issue+"&open="+id_issue+"' target=_blank>issue link</a>",
     "language": rule.language,
     "type": rule.type
   };
@@ -149,7 +150,7 @@ function statsProjects(json) {
 }
 
 function fetchProjects(page, start_date, ruletypes, issuetypes, resolution, statuses) {
-  
+
   fetch('https://sonarcloud.io/api/components/search_projects?f=analysisDate&s=analysisDate&asc=false&ps=500&p='+page, fetchConfig)
     .then(res => res.json())
     .then(json => { 
@@ -177,11 +178,11 @@ function fetchRules(page, start_date, ruletypes, issuetypes, resolution, statuse
     statuses = "OPEN,CONFIRMED,REOPENED,RESOLVED,CLOSED,TO_REVIEW,IN_REVIEW,REVIEWED";
   }
   
-  fetch('https://sonarcloud.io/api/rules/search?types='+ruletypes+'&ps=500&p='+page, fetchConfig)
+  fetch('https://sonarcloud.io/api/rules/search?types='+ruletypes+'&organization='+organization+'&ps=500&p='+page, fetchConfig)
     .then(res => res.json())
     .then(json => { 
       var whereiam = json.p * json.ps;
-        
+
       statsRules(json);
 
       if(json.total > whereiam) {
@@ -234,6 +235,7 @@ else {
         targeted_rules.push(data);
       }
     }
+    console.log("Targeted Rules: " + targeted_rules);
   }
   catch(err) {
     console.error(err)
@@ -245,7 +247,9 @@ else {
 
   var start_date = new Date(); // now
   start_date.setDate(start_date.getDate() - process.argv[2]);
-    
+
+  console.log("Looking for issues created after: " + start_date);
+
   if(process.argv.length == 6) {
     fetchRules(1, start_date, process.argv[3], process.argv[4], process.argv[5]);
   }
