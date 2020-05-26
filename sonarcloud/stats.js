@@ -16,6 +16,22 @@ var targeted_rules = [];
 var current_project_strings = 0;
 project_strings.push("");
 
+var createdAfter = "";
+
+function formatDate4API(date) {
+  var d = new Date(date),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+  if (month.length < 2)
+      month = '0' + month;
+  if (day.length < 2)
+      day = '0' + day;
+
+  return [year, month, day].join('-');
+}
+
 function statsIssues(rule, project, id_issue) {
   var object = {
     "rule_name": "<a href='https://jira.sonarsource.com/browse/RSPEC-"+rule.rspecnum+"' target=_blank>"+rule.name+"</a>",
@@ -33,13 +49,13 @@ function fetchIssues(page, idrule, idproject, issuetypes, resolution, statuses) 
   
   if(typeof rules[idrule] !== "undefined") {
     if(resolution === "ALL") {
-      var query = 'https://sonarcloud.io/api/issues/search?componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&statuses='+statuses+'&rules='+rules[idrule].id;
+      var query = 'https://sonarcloud.io/api/issues/search?createdAfter='+createdAfter+'&componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&statuses='+statuses+'&rules='+rules[idrule].id;
     }
     else if(resolution === "NOTRESOLVED") {
-      var query = 'https://sonarcloud.io/api/issues/search?componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&resolved=false&statuses='+statuses+'&rules='+rules[idrule].id;
+      var query = 'https://sonarcloud.io/api/issues/search?createdAfter='+createdAfter+'&componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&resolved=false&statuses='+statuses+'&rules='+rules[idrule].id;
     }
     else {
-      var query = 'https://sonarcloud.io/api/issues/search?componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&resolutions='+resolution+'&statuses='+statuses+'&rules='+rules[idrule].id;
+      var query = 'https://sonarcloud.io/api/issues/search?createdAfter='+createdAfter+'&componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&resolutions='+resolution+'&statuses='+statuses+'&rules='+rules[idrule].id;
     }
     
     query += ("&ps=500&p="+page);
@@ -248,6 +264,8 @@ else {
   var start_date = new Date(); // now
   start_date.setDate(start_date.getDate() - process.argv[2]);
 
+  createdAfter = formatDate4API(start_date);
+
   console.log("Looking for issues created after: " + start_date);
 
   if(process.argv.length == 6) {
@@ -257,5 +275,3 @@ else {
     fetchRules(1, start_date, process.argv[3], process.argv[4], process.argv[5], process.argv[6]);
   }
 }
-
-
