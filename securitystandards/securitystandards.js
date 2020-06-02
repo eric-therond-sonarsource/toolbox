@@ -141,7 +141,7 @@ function transformIssues(json) {
 }
 
 // first page
-/*
+
 fetch('https://jira.sonarsource.com/rest/api/2/search?jql=project%20=%20RSPEC%20AND%20issuetype%20in%20subTaskIssueTypes()%20AND%20resolution%20=%20Unresolved%20ORDER%20BY%20updated%20DESC&maxResults=5000')
     .then(res => res.json())
     .then(json => {
@@ -153,9 +153,9 @@ fetch('https://jira.sonarsource.com/rest/api/2/search?jql=project%20=%20RSPEC%20
           .then(json => {
             
             transformSubtasks(json);
-          */
+          
             // third page
-            fetch('https://jira.sonarsource.com/rest/api/2/search?jql=project%20=%20RSPEC%20AND%20issuetype%20in%20(%22Security%20Hotspot%20Detection%22%2C%20%22Vulnerability%20Detection%22)&maxResults=5000')
+            fetch('https://jira.sonarsource.com/rest/api/2/search?jql=project%20=%20RSPEC%20AND%20issuetype%20in%20subTaskIssueTypes()%20AND%20resolution%20=%20Unresolved%20ORDER%20BY%20updated%20DESC&maxResults=5000&startAt=2000')
                 .then(res => res.json())
                 .then(json => {
                   
