@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 const fs = require('fs');
 
+const organization = "agigleux";
 
 var fetchConfig = { 
   method: 'GET',
@@ -15,11 +16,27 @@ var targeted_rules = [];
 var current_project_strings = 0;
 project_strings.push("");
 
+var createdAfter = "";
+
+function formatDate4API(date) {
+  var d = new Date(date),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+  if (month.length < 2)
+      month = '0' + month;
+  if (day.length < 2)
+      day = '0' + day;
+
+  return [year, month, day].join('-');
+}
+
 function statsIssues(rule, project, id_issue) {
   var object = {
     "rule_name": "<a href='https://jira.sonarsource.com/browse/RSPEC-"+rule.rspecnum+"' target=_blank>"+rule.name+"</a>",
     "project": "<a href='https://sonarcloud.io/dashboard?id="+project+"' target=_blank>"+project+"</a>",
-    "issue_link": "<a href='https://sonarcloud.io/project/issues?id="+project+"&open="+id_issue+"' target=_blank>issue link</a>",
+    "issue_link": "<a href='https://sonarcloud.io/project/issues?id="+project+"&issues="+id_issue+"&open="+id_issue+"' target=_blank>issue link</a>",
     "language": rule.language,
     "type": rule.type
   };
@@ -32,13 +49,13 @@ function fetchIssues(page, idrule, idproject, issuetypes, resolution, statuses) 
   
   if(typeof rules[idrule] !== "undefined") {
     if(resolution === "ALL") {
-      var query = 'https://sonarcloud.io/api/issues/search?componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&statuses='+statuses+'&rules='+rules[idrule].id;
+      var query = 'https://sonarcloud.io/api/issues/search?createdAfter='+createdAfter+'&componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&statuses='+statuses+'&rules='+rules[idrule].id;
     }
     else if(resolution === "NOTRESOLVED") {
-      var query = 'https://sonarcloud.io/api/issues/search?componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&resolved=false&statuses='+statuses+'&rules='+rules[idrule].id;
+      var query = 'https://sonarcloud.io/api/issues/search?createdAfter='+createdAfter+'&componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&resolved=false&statuses='+statuses+'&rules='+rules[idrule].id;
     }
     else {
-      var query = 'https://sonarcloud.io/api/issues/search?componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&resolutions='+resolution+'&statuses='+statuses+'&rules='+rules[idrule].id;
+      var query = 'https://sonarcloud.io/api/issues/search?createdAfter='+createdAfter+'&componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&resolutions='+resolution+'&statuses='+statuses+'&rules='+rules[idrule].id;
     }
     
     query += ("&ps=500&p="+page);
@@ -149,7 +166,7 @@ function statsProjects(json) {
 }
 
 function fetchProjects(page, start_date, ruletypes, issuetypes, resolution, statuses) {
-  
+
   fetch('https://sonarcloud.io/api/components/search_projects?f=analysisDate&s=analysisDate&asc=false&ps=500&p='+page, fetchConfig)
     .then(res => res.json())
     .then(json => { 
@@ -177,11 +194,11 @@ function fetchRules(page, start_date, ruletypes, issuetypes, resolution, statuse
     statuses = "OPEN,CONFIRMED,REOPENED,RESOLVED,CLOSED,TO_REVIEW,IN_REVIEW,REVIEWED";
   }
   
-  fetch('https://sonarcloud.io/api/rules/search?types='+ruletypes+'&ps=500&p='+page, fetchConfig)
+  fetch('https://sonarcloud.io/api/rules/search?types='+ruletypes+'&organization='+organization+'&ps=500&p='+page, fetchConfig)
     .then(res => res.json())
     .then(json => { 
       var whereiam = json.p * json.ps;
-        
+
       statsRules(json);
 
       if(json.total > whereiam) {
@@ -234,6 +251,7 @@ else {
         targeted_rules.push(data);
       }
     }
+    console.log("Targeted Rules: " + targeted_rules);
   }
   catch(err) {
     console.error(err)
@@ -245,7 +263,11 @@ else {
 
   var start_date = new Date(); // now
   start_date.setDate(start_date.getDate() - process.argv[2]);
-    
+
+  createdAfter = formatDate4API(start_date);
+
+  console.log("Looking for issues created after: " + start_date);
+
   if(process.argv.length == 6) {
     fetchRules(1, start_date, process.argv[3], process.argv[4], process.argv[5]);
   }
@@ -253,5 +275,3 @@ else {
     fetchRules(1, start_date, process.argv[3], process.argv[4], process.argv[5], process.argv[6]);
   }
 }
-
-
