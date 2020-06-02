@@ -166,7 +166,7 @@ fetch('https://jira.sonarsource.com/rest/api/2/search?jql=project%20=%20RSPEC%20
                       .then(res => res.json())
                       .then(json => transformIssues(json));
                 });
-                /*
+                
           });
     });
-    */
+    

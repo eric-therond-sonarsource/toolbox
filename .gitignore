@@ -6,3 +6,6 @@ sonarcloud/package-lock.json
 sonarcloud/data.json
 checkrules/package-lock.json
 checkrules/node_modules/
+peach/package-lock.json
+peach/node_modules/
+
