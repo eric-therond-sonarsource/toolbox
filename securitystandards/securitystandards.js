@@ -1,13 +1,13 @@
 const fetch = require('node-fetch');
 const fs = require('fs');
 
-function createOwaspObject(key, title, subtasks, issuelinks) {
+function createOwaspObject(key, title, subtasks, issuelinks, type) {
   
   if(typeof issuelinks !== 'undefined' && issuelinks !== null) {
     
     // 0: name of ticket 1: name of subtask
     // correct order to avoid conflict "javascript" "java"
-    var subtaskslang = [["js", "javascript"], ["java", "java"], ["c#", "c#"], ["py", "python"], ["php", "php"], ["slang", "kotlin"], ["cpp", "c-family"], ["plsql", "pl/sql"]];
+    var subtaskslang = [["js", "javascript"], ["java", "java"], ["c#", "c#"], ["py", "python"], ["php", "php"], ["cpp", "c-family"]];
     
     var statesubtasks = [];
     
@@ -75,14 +75,13 @@ function createOwaspObject(key, title, subtasks, issuelinks) {
   var object = {
     "owaspcat": "not defined",
     "ruletitle": "<a href='https://jira.sonarsource.com/browse/"+key+"'>"+title+"</a>",
+    "type": type,
     "java": statesubtasks["java"]["hassubtask"],
     "csharp": statesubtasks["c#"]["hassubtask"],
     "js": statesubtasks["js"]["hassubtask"],
     "python": statesubtasks["py"]["hassubtask"],
     "php": statesubtasks["php"]["hassubtask"],
-    "kotlin": statesubtasks["slang"]["hassubtask"],
-    "cfamily": statesubtasks["cpp"]["hassubtask"],
-    "plsql": statesubtasks["plsql"]["hassubtask"]
+    "cfamily": statesubtasks["cpp"]["hassubtask"]
   }
   
   return object;
@@ -113,7 +112,7 @@ function transformIssues(json) {
         owaspfield.split(",").forEach(function(lab) {
           if(lab.includes("A")) {
             
-            var newObj = createOwaspObject(element.key, element.fields.summary, element.fields.subtasks, element.fields.issuelinks);
+            var newObj = createOwaspObject(element.key, element.fields.summary, element.fields.subtasks, element.fields.issuelinks, element.fields.issuetype.name);
             newObj.owaspcat = lab.trim();
             owaspStandard.push(newObj);
             owaspfound = true;
@@ -122,7 +121,7 @@ function transformIssues(json) {
       }
       
       if(!owaspfound) {
-        var newObj = createOwaspObject(element.key, element.fields.summary, element.fields.subtasks, element.fields.issuelinks);
+        var newObj = createOwaspObject(element.key, element.fields.summary, element.fields.subtasks, element.fields.issuelinks, element.fields.issuetype.name);
         owaspStandard.push(newObj);
       }
     });
@@ -142,6 +141,7 @@ function transformIssues(json) {
 }
 
 // first page
+/*
 fetch('https://jira.sonarsource.com/rest/api/2/search?jql=project%20=%20RSPEC%20AND%20issuetype%20in%20subTaskIssueTypes()%20AND%20resolution%20=%20Unresolved%20ORDER%20BY%20updated%20DESC&maxResults=5000')
     .then(res => res.json())
     .then(json => {
@@ -153,19 +153,20 @@ fetch('https://jira.sonarsource.com/rest/api/2/search?jql=project%20=%20RSPEC%20
           .then(json => {
             
             transformSubtasks(json);
-          
+          */
             // third page
-            fetch('https://jira.sonarsource.com/rest/api/2/search?jql=project%20=%20RSPEC%20AND%20issuetype%20in%20subTaskIssueTypes()%20AND%20resolution%20=%20Unresolved%20ORDER%20BY%20updated%20DESC&maxResults=5000&startAt=2000')
+            fetch('https://jira.sonarsource.com/rest/api/2/search?jql=project%20=%20RSPEC%20AND%20issuetype%20in%20(%22Security%20Hotspot%20Detection%22%2C%20%22Vulnerability%20Detection%22)&maxResults=5000')
                 .then(res => res.json())
                 .then(json => {
                   
                   transformSubtasks(json);  
                 
                   // in last
-                  fetch('https://jira.sonarsource.com/rest/api/2/search?jql=issuetype%20in%20(%22Security%20Hotspot%20Detection%22%2C%20%22Vulnerability%20Detection%22)&maxResults=5000')
+                  fetch('https://jira.sonarsource.com/rest/api/2/search?jql=issuetype%20in%20(%22Security%20Hotspot%20Detection%22%2C%20%22Vulnerability%20Detection%22) %26 status %3D Active&maxResults=5000')
                       .then(res => res.json())
                       .then(json => transformIssues(json));
                 });
+                /*
           });
     });
-    
+    */

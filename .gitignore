@@ -4,4 +4,6 @@ securitystandards/package-lock.json
 securitystandards/data.json
 sonarcloud/package-lock.json
 sonarcloud/data.json
+checkrules/package-lock.json
+checkrules/node_modules/
 
