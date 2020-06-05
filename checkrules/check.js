@@ -73,7 +73,7 @@ function checkIssues(json) {
         }
         else if(keysIssues.get(element) === "Vulnerability Detection" && savedDescriptions.get(index) !== null) {
           if(!savedDescriptions.get(index).includes("Noncompliant Code Example\r\n") && !savedDescriptions.get(index).includes("Noncompliant Code Example\n")) {
-            console.log("'Sensitive Code Example' is missing in "+element+" ("+keysIssues.get(element)+") subtask "+index+"");
+            console.log("'Noncompliant Code Example' is missing in "+element+" ("+keysIssues.get(element)+") subtask "+index+"");
           }
           if(!savedDescriptions.get(index).includes("Compliant Solution\r\n") && !savedDescriptions.get(index).includes("Compliant Solution\n")) {
             console.log("'Compliant Solution' is missing in "+element+" ("+keysIssues.get(element)+") subtask "+index+"");
