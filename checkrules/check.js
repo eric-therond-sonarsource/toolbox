@@ -57,6 +57,10 @@ function checkIssues(json) {
             }
           }
         }
+        
+        if(element.fields.description.includes("white") || element.fields.description.includes("black")) {
+          console.log("Black or white is mentioned in "+element.key+" rule");
+        }
       }
     });
     
@@ -78,6 +82,12 @@ function checkIssues(json) {
           if(!savedDescriptions.get(index).includes("Compliant Solution\r\n") && !savedDescriptions.get(index).includes("Compliant Solution\n")) {
             console.log("'Compliant Solution' is missing in "+element+" ("+keysIssues.get(element)+") subtask "+index+"");
           }
+        }
+      }
+      
+      if(savedDescriptions.get(index) !== null) {
+        if(savedDescriptions.get(index).includes("white") || savedDescriptions.get(index).includes("black")) {
+          console.log("Black or white is mentioned in "+index+" rule");
         }
       }
     }); 
