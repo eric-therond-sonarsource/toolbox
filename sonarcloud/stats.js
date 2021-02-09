@@ -45,8 +45,7 @@ function statsIssues(rule, project, id_issue) {
 }
 
 function fetchIssues(page, idrule, idproject, issuetypes, resolution, statuses) {
-  
-  
+    
   if(typeof rules[idrule] !== "undefined") {
     if(resolution === "ALL") {
       var query = 'https://sonarcloud.io/api/issues/search?createdAfter='+createdAfter+'&componentKeys='+project_strings[idproject]+'&types='+issuetypes+'&statuses='+statuses+'&rules='+rules[idrule].id;
@@ -187,8 +186,8 @@ function fetchProjects(page, start_date, ruletypes, issuetypes, resolution, stat
   );
 }
 
-// https://sonarcloud.io/api/issues/search?componentKeys=SonarSource_sonarcloud-core&types=VULNERABILITY&statuses=OPEN,CONFIRMED,REOPENED,RESOLVED,CLOSED,TO_REVIEW,IN_REVIEW,REVIEWED&rules=java:S5542
-function fetchRules(page, start_date, ruletypes, issuetypes, resolution, statuses="OPEN,CONFIRMED,REOPENED,RESOLVED,CLOSED,TO_REVIEW,IN_REVIEW,REVIEWED") {
+// https://sonarcloud.io/api/issues/search?componentKeys=SonarSource_sonarcloud-core&types=VULNERABILITY&statuses=OPEN,CONFIRMED,REOPENED,RESOLVED,CLOSED&rules=java:S5542
+function fetchRules(page, start_date, ruletypes, issuetypes, resolution, statuses="OPEN,CONFIRMED,REOPENED,RESOLVED,CLOSED") {
   // first page
   if(statuses === "ALL") {
     statuses = "OPEN,CONFIRMED,REOPENED,RESOLVED,CLOSED,TO_REVIEW,IN_REVIEW,REVIEWED";
@@ -198,7 +197,7 @@ function fetchRules(page, start_date, ruletypes, issuetypes, resolution, statuse
     .then(res => res.json())
     .then(json => { 
       var whereiam = json.p * json.ps;
-
+      
       statsRules(json);
 
       if(json.total > whereiam) {
@@ -219,10 +218,10 @@ if(process.argv.length < 6 || process.argv.length > 8) {
   console.log("node stats.js days rule-type issue-type resolution statuses\n");
   
   console.log("where *days* the analysis to considerer, not before now minus x days ");
-  console.log("where rule type could be: VULNERABILITY,CODE_SMELL,SECURITY_HOTSPOT,BUG or a text file with rules separated by comma");
-  console.log("where issue type could be: VULNERABILITY,CODE_SMELL,SECURITY_HOTSPOT,BUG");
+  console.log("where rule type could be: VULNERABILITY,CODE_SMELL,BUG or a text file with rules separated by comma");
+  console.log("where issue type could be: VULNERABILITY,CODE_SMELL,BUG");
   console.log("where resolution could be: ALL,NOTRESOLVED,WONTFIX,FALSE-POSITIVE,FIXED,REMOVED");
-  console.log("where statuses is optional and could be: ALL,OPEN,CONFIRMED,REOPENED,RESOLVED,CLOSED,TO_REVIEW,IN_REVIEW,REVIEWED");
+  console.log("where statuses is optional and could be: ALL,OPEN,CONFIRMED,REOPENED,RESOLVED,CLOSED");
 }   
 else {
   
@@ -258,7 +257,7 @@ else {
   }
   
   if(targeted_rules.length > 0) {
-    process.argv[3] = "VULNERABILITY,CODE_SMELL,SECURITY_HOTSPOT,BUG";
+    process.argv[3] = "VULNERABILITY,CODE_SMELL,BUG";
   }
 
   var start_date = new Date(); // now

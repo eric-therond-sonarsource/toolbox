@@ -14,8 +14,8 @@ node stats.js days rule-type issue-type resolution statuses
 where:
 <sup>
 - *days*: the analysis to considerer (see below)
-- *rule*: VULNERABILITY,CODE_SMELL,SECURITY_HOTSPOT,BUG or a text file (see below)
-- *issue*: VULNERABILITY,CODE_SMELL,SECURITY_HOTSPOT,BUG
+- *rule*: VULNERABILITY,CODE_SMELL,BUG or a text file (see below)
+- *issue*: VULNERABILITY,CODE_SMELL,BUG
 - *resolution*:  ALL,NOTRESOLVED,WONTFIX,FALSE-POSITIVE,FIXED,REMOVED
 - *statuses* (optional): ALL,OPEN,CONFIRMED,REOPENED,RESOLVED,CLOSED
 </sup>
@@ -39,7 +39,7 @@ It is recommended to not stress SonarCloud so to explore only for the last **one
 
 #### Example
 ```
-node stats.js 1 ./cryptorules.txt VULNERABILITY,SECURITY_HOTSPOT ALL
+node stats.js 1 ./taintrules.txt VULNERABILITY ALL
 ```
 The above command will take approximatively 5 minutes to execute.
 
